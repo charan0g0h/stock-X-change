@@ -15,7 +15,7 @@ function Stock(){
     const [recom,setRecom] = useState([])
     const [amount,setAmount] = useState()
     const [stock,setStock] = useState()
-    const apikey = 'sk-live-JfkawHSh2ti4hD7zuYiMe4afmGakCMSwO3tj4ft'
+    const apikey = import.meta.env.VITE_API_KEY
     function handlesearch(){
 
     }

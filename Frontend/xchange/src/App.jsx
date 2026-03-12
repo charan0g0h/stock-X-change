@@ -5,6 +5,7 @@ import Home from "./Pages/Home";
 import Dashboard from "./Pages/Dashboard";
 import Portfolio from "./Pages/Portfolio";
 import Stock from "./Pages/Stock";
+import Payment from "./Pages/Payment";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="discover" element={<Discover />}/>
         <Route path="portfolio" element={<Portfolio/>}/>
+        <Route path="payment" element={<Payment/>}></Route>
         <Route path="stock/:company" element={<Stock/>}></Route>
       </Route>
     </Routes>

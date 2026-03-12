@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import CompanyLogo from "../CompanyLogo"
 import { Line,Bar } from "react-chartjs-2"
 
@@ -16,6 +16,7 @@ function Stock(){
     const [amount,setAmount] = useState()
     const [stock,setStock] = useState()
     const apikey = import.meta.env.VITE_API_KEY
+    const nav = useNavigate()
     function handlesearch(){
 
     }
@@ -124,20 +125,7 @@ function Stock(){
             "buy_price" : amount
         }
         e.preventDefault()
-        async function fetchInvest(){
-            const res = await fetch("http://localhost:8080/buy",{
-                method : "POST",
-                headers : {
-                    "content-Type" : "application/json",
-                    "authorization" : localStorage.getItem("jwt")
-                },
-                body: body
-            })
-            if(!res.ok){
-                console.log(res.status)
-            }
-        }
-        fetchInvest()
+        nav("/home/payment")
     }
 
     function handleamount(e){

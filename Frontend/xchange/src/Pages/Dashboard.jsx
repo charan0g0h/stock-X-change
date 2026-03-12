@@ -12,6 +12,7 @@ function Dashboard(){
     const [toplosers,setToplosers] = useState([])
     const [labels,setLabels] = useState([])
     const [piedata,setPiedata] = useState([])
+    const apikey = import.meta.env.VITE_API_KEY
     const nav = useNavigate()
 
     useEffect(() => {
@@ -38,7 +39,7 @@ function Dashboard(){
             const res = await fetch("https://stock.indianapi.in//trending",{
                 method : "GET",
                 headers : {
-                    "x-api-key" : "sk-live-FYukVkhNoyV371SwWuR1iQKJO4M8UV5hopO6a2RI"
+                    "x-api-key" : apikey
                 }
             })
             const data = await res.json()

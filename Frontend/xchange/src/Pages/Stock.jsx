@@ -119,13 +119,12 @@ function Stock(){
 
     function invest(e){
         const body = {
-            "tickerid" : stockdata.companyProfile?.exchangeCodeNse,
-            "company_name" : stockdata.companyName,
+            "comDet" : stockdata,
             "quantity" : stock,
             "buy_price" : amount
         }
         e.preventDefault()
-        nav("/home/payment")
+        nav("/home/payment",body)
     }
 
     function handleamount(e){

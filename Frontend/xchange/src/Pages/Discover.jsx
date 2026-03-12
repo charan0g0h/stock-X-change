@@ -13,7 +13,7 @@ function Discover(){
     const [bselow,setBselow]  = useState([])
     const [search,setSearch] = useState("")
 
-    const apikey = "sk-live-JfkawHSh2ti4hD7zuYiMe4afmGakCMSwO3tj4ft"
+    const apikey = import.meta.env.VITE_API_KEY
 
     useEffect(() => {
         async function nsemostactive(){

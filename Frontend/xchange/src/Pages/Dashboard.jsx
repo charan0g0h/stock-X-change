@@ -95,7 +95,7 @@ function Dashboard(){
             </div>
         </div> 
         
-        <div className="flex gap-6">
+        <div className="flex gap-6 px-4">
             <div className="w-200 h-100">
                 <h1 className="text-2xl font-bold">Portfolio summary 2026</h1>
                 <Line data = {{
@@ -178,13 +178,14 @@ function Dashboard(){
             </div>
         </div><br></br>
         <div className="flex w-full gap-4  mt-20">
-            <div className="w-200">
+            <div className="w-200 px-4">
                <div className="flex w-full justify-between mb-3">
                 <span className="font-bold text-2xl">Your Portfolio</span> 
                 <span className="font-bold text-green-500 hover:cursor-pointer">View All</span>                   
                 </div>
-                {yourstock.map((stock) => {
-                    return(
+                {yourstock.map((stock,index) => {
+                    if(index<3){
+                        return(
                         <div className="w-full h-25 rounded-3xl my-8 flex p-6 justify-between shadow-[0px_0px_4px_rgb(0,0,0,0.2)]">
                             <div className="flex justify-between w-full">
                                 <div className="flex gap-4">
@@ -207,6 +208,7 @@ function Dashboard(){
                             </div>
                         </div>
                     )
+                    }
                 })}
             </div>
             <div className="pl-4">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { redirect, useNavigate, useParams } from "react-router-dom"
 import CompanyLogo from "../CompanyLogo"
 import { Line,Bar } from "react-chartjs-2"
 
@@ -15,6 +15,9 @@ function Stock(){
     const [recom,setRecom] = useState([])
     const [amount,setAmount] = useState()
     const [stock,setStock] = useState()
+    const [userData , setUserData] = useState()
+    const [pay , setPay] = useState(false)
+    const [purchase, setPurchase] = useState({})
     const apikey = import.meta.env.VITE_API_KEY
     const nav = useNavigate()
     function handlesearch(){
@@ -118,13 +121,8 @@ function Stock(){
     }
 
     function invest(e){
-        const body = {
-            "comDet" : stockdata,
-            "quantity" : stock,
-            "buy_price" : amount
-        }
         e.preventDefault()
-        nav("/home/payment",body)
+        setPay(true)
     }
 
     function handleamount(e){
@@ -136,7 +134,52 @@ function Stock(){
         setStock(e.target.value)
         setAmount(e.target.value * reuse.price)
     }
+     useEffect(() => {
+        async function fetchUserDetails(){
+            const res = await fetch("http://localhost:8080/getUser",{
+                method : 'GET',
+                headers : {
+                    "content-Type" : "application/json",
+                    "authorization" : localStorage.getItem("jwt")
+                }
+            })
+            const data = await res.json();
+            setUserData(data)
+        }
+        fetchUserDetails()
+    },[])
 
+    function makePurchase(){
+        async function fetchpurchase(){
+            const res = await fetch("http://localhost:8080/buy",{
+                            method : "POST",
+                            headers : {
+                                "Content-Type" : "application/json",
+                                "Authorization" : "Bearer " + localStorage.getItem("jwt")
+                            },
+                            body : JSON.stringify({
+                                ticker_id : stockdata?.companyProfile?.isInId || 2000,
+                                company_name : stockdata?.companyName || "testing",
+                                quantity : amount || 10000,
+                                buy_price : stockdata?.currentPrice?.NSE || 10
+                            })
+                        })
+            if(res.ok){
+                console.log("fine")
+                setPurchase(prev => ({...prev, success : true , redirecting : 3 , failed : false}))
+                setTimeout(() => {setPurchase(prev => ({...prev , redirecting : 2}))},1000)
+                setTimeout(() => {setPurchase(prev => ({...prev , redirecting : 1}))},2000)
+                setTimeout(() => {nav("/home/portfolio")},3000)     
+            }else{
+                setPurchase(prev => ({...prev , failed : true , success : false , redirecting : 3}))
+                setTimeout(() => {setPurchase(prev => ({...prev , redirecting : 2}))},1000)
+                setTimeout(() => {setPurchase(prev => ({...prev , redirecting : 1}))},2000)
+                setTimeout(() => {setPay(false)},3000)
+                setTimeout(() => {setPurchase(prev => ({...prev, success : false , failed : false}))},3000)
+            }
+        }
+        fetchpurchase()
+    }
     return(
         <>
         <div className="w-full p-4 border-2 bg-white flex justify-between">
@@ -350,11 +393,81 @@ function Stock(){
                             <label>stocks</label><br></br>
                             <input type="number" value={stock} onChange={handlestock} className="text-2xl border-2 text-center"></input>
                         </div>
-                        <button type="submit" className="font-bold p-4 m-2 mt-4 text-white w-70 rounded-2xl bg-purple-400">Invest Now</button>
+                        <button type="submit" className=" font-bold p-4 m-2 mt-4 text-white w-70 rounded-2xl bg-purple-400">Invest Now</button>
                     </form>
                 </div>
            </div>
         </div>
+        { pay &&   <div className="w-250 bg-purple-50 border-2 flex justify-evenly p-4 rounded-4xl h-fit absolute top-30 gap-10 right-30 ">
+                <div className="basis-128 border-2 shadow-md rounded-4xl p-4">
+                    <table className="w-full">
+                        <thead className="w-full">
+                            <tr></tr>
+                        </thead>
+                        <tbody className="w-full">
+                            <h1 className="p-2 text-center text-2xl font-extrabold font-mono">Stock Information</h1>
+                            <tr>
+                                <td className="text-left px-4">Company Name: </td>
+                                <td className="text-left px-4">{stockdata.companyName}</td>
+                            </tr>
+                            <tr>
+                                <td className="text-left px-4">ISIN Id: </td>
+                                <td className="text-left px-4">{stockdata.companyProfile?.isInId}</td>
+                            </tr>
+                            <tr>
+                                <td className="text-left px-4">Current Price: </td>
+                                <td className="text-left px-4">{stockdata.currentPrice?.NSE}</td>
+                            </tr>
+                            <tr>
+                                <td className="text-left px-4">Percent Change: </td>
+                                <td className="text-left px-4">{stockdata.percentChange}</td>
+                            </tr>
+                            <h1 className="p-2 text-center text-2xl font-extrabold font-mono">Order Information</h1>
+                            <tr>
+                                <td className="text-left px-4">Quantity: </td>
+                                <td className="text-left px-4">{amount}</td>
+                            </tr>
+                            <tr>
+                                <td className="text-left px-4">Price Per Share: </td>
+                                <td className="text-left px-4">{stockdata.currentPrice?.NSE}</td>
+                            </tr>
+                            <tr>
+                                <td className="text-left px-4">Total Value: </td>
+                                <td className="text-left px-4">{stockdata.currentPrice?.NSE * amount}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div className="basis-128 border-2 rounded-4xl shadow-md p-4">
+                    <h1 className="p-2 text-center text-2xl font-extrabold font-mono">Payment Method</h1>
+                    <p className="font-mono text-neutral-400">select payment method to proceed</p>
+                    <div className="px-8">
+                        <select className="border-2">
+                            <option>X change Wallet</option>
+                            <option>UPI</option>
+                            <option>Credit Card</option>
+                            <option>Debit Card</option>
+                            <option>Net Banking</option> 
+                        </select>
+                    </div>
+                    <h2 className="px-4 font-bold text-purple-400 p-2">Wallet Balance: {userData?.balance || "100000"} </h2>
+                    <button onClick={makePurchase} className="w-60 border-2 bg-green-400 text-white font-extrabold ">Buy</button>
+                    {
+                        purchase.success && <>
+                        <div className="w-full mt-4 p-1 text-center  bg-green-100">Purchase Succesfull</div>
+                        <div className="w-full mt-4 p-1 text-center  bg-green-100">Redirecting to portfolio... {purchase.redirecting}</div>
+                        </>
+                    }
+                    {
+                        purchase.failed && <>
+                        <div className="w-full mt-4 p-1 text-center  bg-red-100">Purchase failed</div>
+                        <div className="w-full mt-4 p-1 text-center  bg-red-100">Redirecting ... {purchase.redirecting}</div>
+                        </>
+                    }
+                    
+                </div>
+            </div>
+        }
         </>
     )
 }

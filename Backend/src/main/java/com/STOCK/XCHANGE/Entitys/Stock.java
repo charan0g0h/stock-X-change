@@ -39,6 +39,14 @@ public class Stock {
             @JsonManagedReference
     List<Transactions> transactions;
 
+    public List<Transactions> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transactions> transactions) {
+        this.transactions = transactions;
+    }
+
     public Stock(){}
 
     public Stock(String ticker_id, String company_name, Double quantity, int id) {

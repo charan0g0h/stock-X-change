@@ -26,11 +26,11 @@ public class Transactions {
         this.date = localDate.toString();
     }
 
-    public Transactions(int id, String transaction_type, double quantity, double buy_price) {
+    public Transactions(int id, String transaction_type, double quantity, double price) {
         this.id = id;
         this.transaction_type = transaction_type;
         this.quantity = quantity;
-        this.price = buy_price;
+        this.price = price;
         LocalDate localDate = LocalDate.now();
         this.date = localDate.toString();
     }

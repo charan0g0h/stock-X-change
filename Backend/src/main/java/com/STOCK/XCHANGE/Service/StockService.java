@@ -146,6 +146,7 @@ public class StockService {
                             double avgBuyprice = totalBuyPrice / buyFrequency;
                             closedProfitLoss += t.getQuantity() * (t.getPrice() - avgBuyprice);
                             currentQuantity -= t.getQuantity();
+                            closedAmount += t.getQuantity() * t.getPrice();
                             totalBuyPrice -= avgBuyprice * t.getQuantity();
                             buyFrequency -= t.getQuantity();
                         }
@@ -160,7 +161,10 @@ public class StockService {
                             closedAmount,
                             avgBuyprice,
                             currentValue,
-                            returns);
+                            returns,
+                            currentPrice,
+                            data.yearHigh(),
+                            data.yearLow());
                     map.put(e.getCompany_name(), pv);
                 }
             }

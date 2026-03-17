@@ -7,6 +7,9 @@ public record PortfolioView(
         double closedAmount,
         double avgBuyPrice,
         double currentValue,
-        double returns
+        double returns,
+        double currentPrice,
+        double yearHigh,
+        double yearLow
 ) {
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FetchData(
         String companyName,
-        CurrentPrice currentPrice
+        CurrentPrice currentPrice,
+        double yearHigh,
+        double yearLow
 ) {
 }

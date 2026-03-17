@@ -5,8 +5,22 @@ import PortfolioCard from "./PortfolioCard"
 function Portfolio(){
     const [mystockdata , setMystockdata] = useState()
     const [user ,setuser ] = useState()
+    const [trending , setTrending] = useState()
+    const apikey = import.meta.env.VITE_API_KEY
     useEffect(() => {
-       async function fetchmystock(){
+        async function fetchtrend(){
+            const res = await fetch("https://stock.indianapi.in//trending",{
+                method : "GET",
+                headers : {
+                    "x-api-key" : apikey
+                }
+            })
+            const data = await res.json()
+            setTrending(data.trending_stocks)
+        }
+        fetchtrend()
+    },[])
+     async function fetchmystock(){
             const res = await fetch("http://localhost:8080/getUser",{
                 headers : {
                     "Content-Type" : "application/json",
@@ -26,12 +40,13 @@ function Portfolio(){
             setMystockdata(data2)
             console.log(data2)
        }
+    useEffect(() => {
        fetchmystock() 
     },[])
 
     return(
         <>
-            <div className="w-full flex justify-between p-4">
+        <div className="w-full flex justify-between p-4">
             <div className="w-auto">
                 <span className="text-3xl font-extrabold text-green-400">Stock X Change</span>
                 <span className="text-center ml-4 font-extrabold text-purple-500 text-4xl">Portfolio</span>
@@ -48,13 +63,52 @@ function Portfolio(){
                 </svg>
             </div>
             </div> 
-            <p className="mx-10 font-extrabold">View Your Stocks</p>
+        <div className="w-full h-15 border-2 bg-neutral-50 flex justify-around">
+            {(trending?.top_gainers || [] ).map((stock,index) => {
+                if(index < 3){
+                    return(
+                        <>
+                        <div className="w-100 p-3 flex items-center h-full">
+                            <div className="w-15 rounded-4xl border-2 ">
+                                <CompanyLogo domain={stock.company_name.replaceAll(" ","")}></CompanyLogo>
+                            </div>
+                            <div className="font-bold flex justify-between w-full ">
+                                <span className="ml-2">{stock.company_name || "company"}</span>
+                                <span className="text-green-500">{stock.percent_change || 0} %</span>
+                            </div>
+                        </div>
+                        <div className="h-full w-0.5 bg-black "></div>
+                        </>
+                    )
+                }else return null
+            })}
+            {(trending?.top_losers || [] ).map((stock,index) => {
+                if(index < 2){
+                    return(
+                        <>
+                        <div className="w-100 p-3 flex items-center h-full">
+                            <div className="w-15 rounded-4xl border-2 ">
+                                <CompanyLogo domain={stock.company_name.replaceAll(" ","")}></CompanyLogo>
+                            </div>
+                            <div className="font-bold flex justify-between w-full ">
+                                <span className="ml-2">{stock.company_name || "company"}</span>
+                                <span className="text-red-500">{stock.percent_change || 0} %</span>
+                            </div>
+                            
+                        </div>
+                        <div className="h-full w-0.5 bg-black "></div>
+                        </>
+                    )
+                }else return null
+            })}
+        </div>
+            <p className="mx-10 mt-5 font-extrabold">View Your Stocks</p>
             <div className="w-full px-10 h-fit">
 
                 {
                     user?.stocks?.map((stock) => {
                         return(
-                            <PortfolioCard stock={stock} mystockdata={mystockdata}></PortfolioCard>
+                            <PortfolioCard stock={stock} mystockdata={mystockdata} reload ={fetchmystock}></PortfolioCard>
                         )
                         
                     })

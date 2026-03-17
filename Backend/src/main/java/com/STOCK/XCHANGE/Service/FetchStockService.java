@@ -17,8 +17,6 @@ public class FetchStockService {
         headers.add("x-api-key","sk-live-z0pgmM6AeDvqNKtp5swZVBrzmU5nBDyKDjJD7Hvo");
         HttpEntity<FetchData> entity = new HttpEntity<>(headers);
         ResponseEntity<FetchData> response = restTemplate.exchange(url, HttpMethod.GET,entity, FetchData.class);
-        System.out.println(cname);
-        System.out.println(response);
         return response.getBody();
     }
 }

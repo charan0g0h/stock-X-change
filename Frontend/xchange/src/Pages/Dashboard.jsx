@@ -15,6 +15,7 @@ function Dashboard(){
     const apikey = import.meta.env.VITE_API_KEY
     const nav = useNavigate()
 
+
     useEffect(() => {
         async function loadYourStock(){
             const res = await fetch("http://localhost:8080/getUser",{
@@ -185,11 +186,12 @@ function Dashboard(){
                 </div>
                 {yourstock.map((stock,index) => {
                     if(index<3){
+                        let domain = stock.company_name.replaceAll(' ','')
                         return(
                         <div className="w-full h-25 rounded-3xl my-8 flex p-6 justify-between shadow-[0px_0px_4px_rgb(0,0,0,0.2)]">
                             <div className="flex justify-between w-full">
                                 <div className="flex gap-4">
-                                    <CompanyLogo  domain={stock.company_name}></CompanyLogo>
+                                    <CompanyLogo  domain={domain}></CompanyLogo>
                                     <div>
                                         <h1 className=" font-bold">{stock.company_name}</h1>
                                     <p className="text-neutral-400">A Multimedia company</p>
@@ -197,11 +199,11 @@ function Dashboard(){
                                 </div>
                                 <div className="flex gap-16">
                                     <div>
-                                        <h1 className="font-bold">{indivdualTotalinvested[stock.company_name]}</h1>
+                                        <h1 className="font-bold">{(indivdualTotalinvested[stock.company_name])?.toFixed(2)}</h1>
                                         <p className="text-neutral-400">Total Invested</p>
                                     </div>
                                     <div>
-                                        <h1 className="font-bold text-green-400">{stock.quantity}</h1>
+                                        <h1 className="font-bold text-green-400">{(stock.quantity)?.toFixed(2)}</h1>
                                         <p className="text-neutral-400">Stocks owned</p>
                                     </div>
                                 </div>

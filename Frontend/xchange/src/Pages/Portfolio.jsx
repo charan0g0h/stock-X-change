@@ -1,10 +1,40 @@
+import { useEffect, useState } from "react"
+import CompanyLogo from "../CompanyLogo"
+import PortfolioCard from "./PortfolioCard"
+
 function Portfolio(){
+    const [mystockdata , setMystockdata] = useState()
+    const [user ,setuser ] = useState()
+    useEffect(() => {
+       async function fetchmystock(){
+            const res = await fetch("http://localhost:8080/getUser",{
+                headers : {
+                    "Content-Type" : "application/json",
+                    "Authorization" : "Bearer " + localStorage.getItem("jwt")
+                }
+            })
+            const data = await res.json()
+            setuser(data)
+            console.log(data)
+            const res2 = await fetch("http://localhost:8080/getStockdata",{
+                headers : {
+                    "Content-Type" : "application/json",
+                    "Authorization" : "Bearer " + localStorage.getItem("jwt")
+                }
+            })
+            const data2 = await res2.json()
+            setMystockdata(data2)
+            console.log(data2)
+       }
+       fetchmystock() 
+    },[])
+
     return(
         <>
-            <div className="w-full flex justify-between p-8">
+            <div className="w-full flex justify-between p-4">
             <div className="w-auto">
-                <span className="text-2xl ">Welcome to </span>
                 <span className="text-3xl font-extrabold text-green-400">Stock X Change</span>
+                <span className="text-center ml-4 font-extrabold text-purple-500 text-4xl">Portfolio</span>
                 <p>Invest Today Rise Tomorrow</p>
             </div>
             <div>
@@ -18,7 +48,17 @@ function Portfolio(){
                 </svg>
             </div>
             </div> 
-            <div>
+            <p className="mx-10 font-extrabold">View Your Stocks</p>
+            <div className="w-full px-10 h-fit">
+
+                {
+                    user?.stocks?.map((stock) => {
+                        return(
+                            <PortfolioCard stock={stock} mystockdata={mystockdata}></PortfolioCard>
+                        )
+                        
+                    })
+                }
                 
             </div>
         </>

@@ -158,7 +158,7 @@ function Stock(){
                                 "Authorization" : "Bearer " + localStorage.getItem("jwt")
                             },
                             body : JSON.stringify({
-                                ticker_id : stockdata?.companyProfile?.isInId || 2000,
+                                tickerid : stockdata?.companyProfile?.isInId || 2000,
                                 company_name : stockdata?.companyName || "testing",
                                 quantity : amount || 10000,
                                 buy_price : stockdata?.currentPrice?.NSE || 10

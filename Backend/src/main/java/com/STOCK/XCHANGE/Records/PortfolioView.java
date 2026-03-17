@@ -5,6 +5,8 @@ public record PortfolioView(
         double CurrentHoldingsQuantity,
         double closedProfitLoss,
         double closedAmount,
-        double closedProfitLossPercent
+        double avgBuyPrice,
+        double currentValue,
+        double returns
 ) {
 }

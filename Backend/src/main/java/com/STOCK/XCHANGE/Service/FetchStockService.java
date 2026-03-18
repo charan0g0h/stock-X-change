@@ -14,7 +14,7 @@ public class FetchStockService {
         String url = "https://stock.indianapi.in/stock?name=" + cname;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("x-api-key","sk-live-z0pgmM6AeDvqNKtp5swZVBrzmU5nBDyKDjJD7Hvo");
+        headers.add("x-api-key","");
         HttpEntity<FetchData> entity = new HttpEntity<>(headers);
         ResponseEntity<FetchData> response = restTemplate.exchange(url, HttpMethod.GET,entity, FetchData.class);
         return response.getBody();

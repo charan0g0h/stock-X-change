@@ -5,13 +5,14 @@ import Home from "./Pages/Home";
 import Dashboard from "./Pages/Dashboard";
 import Portfolio from "./Pages/Portfolio";
 import Stock from "./Pages/Stock";
+import Register from "./LoginPage/Register";
 
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
-
+      <Route path="/register" element={<Register/>}/>
       <Route path="/home" element={<Home />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="discover" element={<Discover />}/>

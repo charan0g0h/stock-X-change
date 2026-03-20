@@ -13,10 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class StockService {
@@ -31,14 +28,15 @@ public class StockService {
     FetchStockService fetchService;
     @Autowired
     StockMapService mapService;
+
     @Transactional
     public void buy(BuyStock buyStock) {
         authentication = SecurityContextHolder.getContext().getAuthentication();
         UserProfile profile = null;
-        if(authentication != null && authentication.isAuthenticated()){
+        if (authentication != null && authentication.isAuthenticated()) {
             profile = userRepo.findByUsername(authentication.getName());
-            Stock stock = stockRepo.findByTickeridAndUserProfile(buyStock.tickerid(),profile);
-            if(stock == null){
+            Stock stock = stockRepo.findByTickeridAndUserProfile(buyStock.tickerid(), profile);
+            if (stock == null) {
 
                 stock = new Stock();
                 stock.setTicker_id(buyStock.tickerid());
@@ -51,7 +49,7 @@ public class StockService {
             transactions.setTransaction_type("BUY");
             transactions.setStock(stock);
             transactions.setQuantity(buyStock.quantity());
-            profile.setBalance(profile.getBalance() - buyStock.buy_price()* buyStock.quantity());
+            profile.setBalance(profile.getBalance() - buyStock.buy_price() * buyStock.quantity());
             transactions.setPrice(buyStock.buy_price());
             double total = stock.getQuantity() + buyStock.quantity();
             stock.setQuantity(total);
@@ -104,32 +102,32 @@ public class StockService {
 
     public List<ViewStock> mystock() {
         authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null){
+        if (authentication != null) {
             UserProfile profile = userRepo.findByUsername(authentication.getName());
             List<Stock> stk = profile.getStock();
             List<ViewStock> list = new LinkedList<>();
-            for(Stock e : stk){
-                ViewStock viewStock = new ViewStock(e.getTicker_id(),e.getQuantity(),e.getCompany_name());
+            for (Stock e : stk) {
+                ViewStock viewStock = new ViewStock(e.getTicker_id(), e.getQuantity(), e.getCompany_name());
                 list.add(viewStock);
             }
             return list;
         }
-        return  null;
+        return null;
     }
 
     public Map getStockData() {
         Map<String, PortfolioView> map = new HashMap<>();
         authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null){
+        if (authentication != null) {
             UserProfile userProfile = userRepo.findByUsername(authentication.getName());
             List<Stock> stockList = userProfile.getStock();
-            for( Stock e : stockList){
+            for (Stock e : stockList) {
                 List<Transactions> transactionsList = e.getTransactions();
                 FetchData data = mapService.getData(e.getCompany_name());
-                if(data == null){
+                if (data == null) {
                     data = fetchService.getCompanydata(e.getCompany_name());
                 }
-                if(data.currentPrice() != null) {
+                if (data.currentPrice() != null) {
                     double currentPrice = data.currentPrice().nse();
                     double currentQuantity = 0;
                     double currentValue;
@@ -140,7 +138,7 @@ public class StockService {
                     for (Transactions t : transactionsList) {
                         if (t.getTransaction_type().equals("BUY")) {
                             currentQuantity += t.getQuantity();
-                            totalBuyPrice += t.getPrice()*t.getQuantity();
+                            totalBuyPrice += t.getPrice() * t.getQuantity();
                             buyFrequency += t.getQuantity();
                         } else {
                             double avgBuyprice = totalBuyPrice / buyFrequency;
@@ -169,6 +167,70 @@ public class StockService {
                 }
             }
         }
-        return  map;
+        return map;
+    }
+
+    public PortfolioGraphData getPortfolioSummary() {
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        PortfolioGraphData graph = new PortfolioGraphData(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserProfile userProfile = userRepo.findByUsername(authentication.getName());
+            List<Transactions> transactions = findtransactionsByProfile(userProfile);
+            transactions.sort(Comparator.comparing(Transactions::getDate));
+
+            Map<Integer, Holding> holdings = new HashMap<>();
+
+
+            for (Transactions tx : transactions) {
+
+                int stockId = tx.getStock().getId();
+                double quantity = tx.getQuantity();
+                double price = tx.getPrice();
+
+                holdings.putIfAbsent(stockId, new Holding(0, 0));
+
+                Holding holding = holdings.get(stockId);
+
+                if (tx.getTransaction_type().equals("BUY")) {
+                    holding.setQuantity(holding.getQuantity() + quantity);
+                    holding.setTotalInvested((holding.getTotalInvested() + quantity * price));
+                }
+
+                if (tx.getTransaction_type().equals("SELL")) {
+                    double avgBuy = holding.getTotalInvested() / holding.getQuantity();
+
+                    holding.setQuantity(holding.getQuantity() - quantity);
+                    holding.setTotalInvested(holding.getTotalInvested() - quantity * avgBuy);
+                }
+                double totalInvested = 0;
+                double totalPortfolio = 0;
+
+                for (Map.Entry<Integer, Holding> entry : holdings.entrySet()) {
+                    int id = entry.getKey();
+                    Holding h = entry.getValue();
+                    Stock stock = stockRepo.findById(id).orElse(null);
+                    if (stock != null) {
+                        FetchData data = mapService.getData(stock.getCompany_name());
+                        if (data == null) {
+                            data = fetchService.getCompanydata(stock.getCompany_name());
+                        }
+                        totalInvested += h.getTotalInvested();
+                        totalPortfolio += h.getQuantity() * data.currentPrice().nse();
+                    }
+                }
+                graph.getDate().add(tx.getDate());
+                graph.getTotalInvested().add(Math.round(totalInvested * 100.0) / 100.0);
+                graph.getCurrentValue().add(Math.round(totalPortfolio * 100.0) / 100.0);
+            }
+        }
+        return graph;
+    }
+    private List<Transactions> findtransactionsByProfile(UserProfile userProfile) {
+        List<Transactions> transactionsList = new ArrayList<>();
+        for(Stock s : userProfile.getStock()){
+            transactionsList.addAll(s.getTransactions());
+        }
+        return transactionsList;
     }
 }
+

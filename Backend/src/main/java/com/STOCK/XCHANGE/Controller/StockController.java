@@ -3,13 +3,10 @@ package com.STOCK.XCHANGE.Controller;
 import com.STOCK.XCHANGE.Entitys.Stock;
 import com.STOCK.XCHANGE.Entitys.Transactions;
 import com.STOCK.XCHANGE.Entitys.UserProfile;
-import com.STOCK.XCHANGE.Records.BuyStock;
-import com.STOCK.XCHANGE.Records.InvestedStock;
-import com.STOCK.XCHANGE.Records.PortfolioView;
+import com.STOCK.XCHANGE.Records.*;
 import com.STOCK.XCHANGE.Repositary.StockRepo;
 import com.STOCK.XCHANGE.Repositary.TransactionRepo;
 import com.STOCK.XCHANGE.Repositary.UserRepo;
-import com.STOCK.XCHANGE.Records.ViewStock;
 import com.STOCK.XCHANGE.Service.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -58,5 +55,9 @@ public class StockController {
     @GetMapping("/getStockdata")
     public Map getStockData(){
         return stockService.getStockData();
+    }
+    @GetMapping("/portfolioSummary")
+    public PortfolioGraphData getPortfolioSummary(){
+        return stockService.getPortfolioSummary();
     }
 }

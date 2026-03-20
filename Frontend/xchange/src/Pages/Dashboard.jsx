@@ -12,10 +12,25 @@ function Dashboard(){
     const [toplosers,setToplosers] = useState([])
     const [labels,setLabels] = useState([])
     const [piedata,setPiedata] = useState([])
+    const [graphdata , setGraphdata ] = useState()
     const apikey = import.meta.env.VITE_API_KEY
     const nav = useNavigate()
 
-
+    useEffect(() => {
+        async function loadGraphdata(){
+            const res = await fetch("http://localhost:8080/portfolioSummary",{
+                method : "GET",
+                headers : {
+                    "Content-Type" : "application/json",
+                    "Authorization" : "Bearer " + localStorage.getItem("jwt")
+                }
+            })
+            const data = await res.json()
+            setGraphdata(data)
+            console.log(data)
+        }
+        loadGraphdata() 
+    },[])
     useEffect(() => {
         async function loadYourStock(){
             const res = await fetch("http://localhost:8080/getUser",{
@@ -98,13 +113,17 @@ function Dashboard(){
         
         <div className="flex gap-6 px-4">
             <div className="w-200 h-100">
-                <h1 className="text-2xl font-bold">Portfolio summary 2026</h1>
+                <h1 className="text-2xl font-bold">Portfolio summary</h1>
                 <Line data = {{
-                    labels : ["jan","feb","march","april","may","june","july","aug","sept","oct","nov","dec"],
+                    labels : graphdata?.date || [],
                     datasets : [
                         {
-                            label : "Return",
-                            data : [100,45,23]
+                            label : "Total Invested",
+                            data : graphdata?.totalInvested || []
+                        },
+                        {
+                            label : "currentValue",
+                            data : graphdata?.currentValue || []
                         }
                     ]
                 }}

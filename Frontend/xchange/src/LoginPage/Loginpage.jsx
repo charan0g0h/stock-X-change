@@ -9,6 +9,9 @@ function LoginPage(){
         e.preventDefault()
         sendLoginRequest()
     }
+    function handleCreateOne(){
+        nav("/register")
+    }
     async function sendLoginRequest(){
         const response = await fetch("http://localhost:8080/login",{
             method : "POST",
@@ -38,6 +41,7 @@ function LoginPage(){
                     <input type="password" value={password} onChange={(e) => SetPassword(e.target.value)}></input><br></br>
                     <button type="submit">Login</button>
                     <p>By clicking login you agree with T&C</p>
+                    <p onClick={handleCreateOne} className="text-blue-500 hover:cursor-pointer">Don't have account Create one</p>
                 </form>
             </div>
         </div>

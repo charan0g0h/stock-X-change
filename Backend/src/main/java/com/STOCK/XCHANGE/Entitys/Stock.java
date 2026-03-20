@@ -11,9 +11,6 @@ public class Stock {
     @Id
             @GeneratedValue(strategy = GenerationType.AUTO)
     int id;
-    @Column(
-            unique = true
-    )
     String tickerid;
     String company_name;
     Double quantity;
